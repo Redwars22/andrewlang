@@ -3,6 +3,10 @@ const keywords = {
     DECLARE_CONST_KEYWD: "const"
 }
 
+const symbols = {
+    SINGLE_LINE_COMMENT: "//"
+}
+
 const SyntaxTree = {
     program: {
         nodes: [] as {}[]
@@ -11,6 +15,10 @@ const SyntaxTree = {
 
 function Parse(line: string){
     let tokens: string[] = line.split(" ");
+
+    if(line.includes(symbols.SINGLE_LINE_COMMENT)){
+        return;
+    }
 
     if(tokens[0] == keywords.DECLARE_VAR_KEYWD){
         const variable = {
@@ -56,8 +64,13 @@ function Parse(line: string){
     }
 }
 
-const testVarDecl = "let name:int = -123";
+const code = [
+    "let name:int = -123",
+    "//this is a comment"
+]
 
-Parse(testVarDecl);
+for(let i = 0; i < code.length; i++){
+    Parse(code[i]);
+}
 
 console.log(SyntaxTree)
