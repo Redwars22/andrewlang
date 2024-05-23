@@ -19,14 +19,15 @@ std::map <std::string, std::string> keywords = {
 };
 
 std::map <std::string, std::string> symbols = {
-    {"SINGLE_LINE_COMMENT", "//"}
+    {"SINGLE_LINE_COMMENT", "//"},
+    {"ALT_SINGLE_LINE_COMMENT", "#"}
 };
 
 void Parse(std::string line){
     std::stringstream tokens(line);
     std::string _tok;
 
-    if(line.find(symbols["SINGLE_LINE_COMMENT"])){
+    if(line.find(symbols["SINGLE_LINE_COMMENT"]) || line.find(symbols["ALT_SINGLE_LINE_COMMENT"])){
         std::cout << "it is a comment";
         return;
     }
