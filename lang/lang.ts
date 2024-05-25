@@ -17,8 +17,8 @@ const symbols = {
 }
 
 const builtinMethods = {
-    io: {
-        PRINT: "console.log"
+    "io": {
+        "PRINT": "console.log"
     }
 }
 
@@ -105,6 +105,24 @@ function parseFunctionDeclarationStatement(tokens: string[], pos: number): strin
     return vectorOfTokens;
 }
 
+function getJSFuncCounterpart(key: string) {
+    if(key == "PRINT"){
+        return builtinMethods.io.PRINT;
+    }
+
+    return "";
+}
+
+function parseBuiltInFunctions(tokens: string[], pos: number, id: string, key: string): string[] {
+    let vectorOfTokens: string[] = tokens;
+
+    for(let tk = 0; tk < tokens.length; tk++){
+        vectorOfTokens[tk] = vectorOfTokens[tk].replace(id, getJSFuncCounterpart(key));
+    }
+
+    return vectorOfTokens;
+}
+
 function parse(lines: Array<Array<string>>) {
     for (let line = 0; line < lines.length; line++) {
         for (let pos = 0; pos < lines[line].length; pos++) {
@@ -128,6 +146,11 @@ function parse(lines: Array<Array<string>>) {
                 closingBracketsCount++;
                 jsCode.push(lines[line].join(" "))
             }
+
+            if(currToken.includes("io.print")) {
+                lines[line] = parseBuiltInFunctions(lines[line], pos, "io.print", "PRINT");
+                jsCode.push(lines[line].join(" "))
+            }
         }
     }
 
@@ -148,4 +171,4 @@ try {
     console.error(e)
 }
 
-console.log(jsCode);
+console.log(jsCode.join("\n"));
