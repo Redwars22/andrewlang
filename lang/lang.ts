@@ -1,3 +1,14 @@
+/*
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+*/
+
+// Piece of code written by AndrewNation
+
 const keywords = {
     DEC_VAR_KEYWD: "let",
     DEC_CONST_KEYWD: "const",
@@ -16,6 +27,10 @@ const symbols = {
     CLOSING_PARENTHESIS: ")"
 }
 
+const rules = {
+    FUNCTION_CALL: /[a-z0-9_]+\([a-z0-9_]*\)[;]?/gm
+}
+
 const builtinMethods = {
     "io": {
         "PRINT": "console.log"
@@ -31,6 +46,11 @@ const SyntaxTree = {
         nodes: [] as {}[]
     }
 };
+
+const identifiers = [] as {
+    id?: string;
+    type?: "function" | "constant" | "variable"
+}[];
 
 const errors = {
     INVALID_TYPE_OR_MISMATCH: "Not a valid type or type mismatch",
@@ -51,6 +71,16 @@ function tokenize(code: string[]): Array<Array<string>> {
     }
 
     return tokenizedLines;
+}
+
+function checkIfItExists(id: string, type: "function" | "variable" | "constant"): boolean {
+    for(let i = 0; i < identifiers.length; i++){
+        if (identifiers[i].id == id + "()" && identifiers[i].type == type) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 function parseVariableDeclarationStatement(tokens: string[], pos: number): string[] {
@@ -101,6 +131,7 @@ function parseFunctionDeclarationStatement(tokens: string[], pos: number): strin
     if(!isFunction) throw("invalid func decl");
 
     vectorOfTokens[0] = "function";
+    identifiers.push({id: vectorOfTokens[1], type: "function"});
 
     return vectorOfTokens;
 }
@@ -144,12 +175,25 @@ function parse(lines: Array<Array<string>>) {
 
             if(currToken.includes(symbols.CLOSING_CURLY_BRACKET)) {
                 closingBracketsCount++;
-                jsCode.push(lines[line].join(" "))
+                jsCode.push(lines[line].join(" "));
+                break;
             }
 
+            //Built-in print function
             if(currToken.includes("io.print")) {
                 lines[line] = parseBuiltInFunctions(lines[line], pos, "io.print", "PRINT");
                 jsCode.push(lines[line].join(" "))
+                break;
+            }
+
+            //Function calls
+            if (lines[line][pos].match(rules.FUNCTION_CALL)) {
+                const id = lines[line][pos].split(symbols.OPENING_PARENTHESIS)[0];
+                
+                if(!checkIfItExists(id, "function")) break;
+
+                jsCode.push(lines[line].join(" "));
+                break;
             }
         }
     }
@@ -163,7 +207,7 @@ function parse(lines: Array<Array<string>>) {
 
 function transpile() { }
 
-const code: string[] = ["let name:int = -123;", "fun greet() {", "io.print(12);", "}"];
+const code: string[] = ["let msg = \"Hello World\"", "fun greet() {", "io.print(msg)", "}", "greet()"];
 
 try {
     parse(tokenize(code));
@@ -171,4 +215,6 @@ try {
     console.error(e)
 }
 
-console.log(jsCode.join("\n"));
+// Add a function to open file, to exec and to write to js and run
+console.log(code.join("\n"));
+eval(jsCode.join("\n"))
