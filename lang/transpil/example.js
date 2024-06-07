@@ -1,5 +1,5 @@
-let x = 9;
-let y = 10;
-if ( x < 10 ) {
-    console.log(x);
+const PI = 3.14;
+function CircleArea(r) {
+    return PI * Math.pow(r, 2);
 }
+console.log(CircleArea(2.8));

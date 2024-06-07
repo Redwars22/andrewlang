@@ -2,12 +2,14 @@ var fs = require("fs");
 var keywords = {
     DEC_VAR_KEYWD: "let",
     DEC_CONST_KEYWD: "const",
+    DECL_CONST_ALT_KEYWD: "def",
     FUNC_DECL: "fun",
     IF_KEYWD: "if",
     FUNC_RET_KEYWD: "ret",
     AND_OP_KEYWD: "and",
     OR_OP_KEYWD: "or",
-    NOT_OP_KEYWD: "not"
+    NOT_OP_KEYWD: "not",
+    WHILE_KEYWD: "while",
 };
 var symbols = {
     SINGL_LINE_COMMENT: "//",
@@ -24,6 +26,8 @@ var symbols = {
 };
 var rules = {
     FUNCTION_CALL: /[a-z0-9_]+\([a-z0-9_]*\)[;]?/gm,
+    INC_DEC_STATEMENT: /.*[a-zA-Z_0-9].{2}[-+]?(;)/gm,
+    INC_DEC_STATEMENT_PRE: /.{2}[-+].*[a-zA-Z_0-9]?(;)/gm,
 };
 var builtinMethods = {
     io: {
@@ -91,7 +95,7 @@ function parseFunctionDeclarationStatement(tokens, pos) {
                 isFunction = true;
             }
         }
-        if (currToken.includes(symbols.OPENING_CURLY_BRACKET))
+        else
             openingBracketsCount++;
     }
     if (!isFunction)
@@ -146,7 +150,8 @@ function parse(lines) {
                 skipLines = true;
             }
             //Variables and Constants
-            if (currToken.includes(keywords.DEC_VAR_KEYWD)) {
+            if (currToken.includes(keywords.DEC_VAR_KEYWD) ||
+                currToken.includes(keywords.DEC_CONST_KEYWD)) {
                 lines[line] = parseVariableDeclarationStatement(lines[line], pos);
                 jsCode.push(lines[line].join(" "));
                 break;
@@ -195,21 +200,41 @@ function parse(lines) {
                         thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
                     }
                 }
-                /*if (
-                  thisLine[lines.length - 1]?.trim() ==
-                    symbols.OPENING_CURLY_BRACKET
-                ) {
-                  thisLine[lines.length - 1] =
-                    symbols.CLOSING_PARENTHESIS + " " + symbols.OPENING_CURLY_BRACKET;
-                } else {
-                  thisLine[lines.length - 1] = symbols.CLOSING_PARENTHESIS + " " + symbols.OPENING_CURLY_BRACKET
-                }*/
                 console.log(thisLine);
                 thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
                 jsCode.push(thisLine.join(" "));
                 break;
             }
             //While statement
+            if (currToken.includes(keywords.WHILE_KEYWD)) {
+                var thisLine = lines[line];
+                thisLine[0] = keywords.WHILE_KEYWD + " " + symbols.OPENING_PARENTHESIS;
+                //Logic operator
+                for (var i = 1; i < thisLine.length; i++) {
+                    if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+                        console.log("AND");
+                        thisLine[i] = thisLine[i].replace(keywords.AND_OP_KEYWD, "&&");
+                    }
+                    if (thisLine[i].includes(keywords.NOT_OP_KEYWD)) {
+                        console.log("NOT");
+                        thisLine[i] = thisLine[i].replace(keywords.NOT_OP_KEYWD, "!");
+                    }
+                    if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+                        console.log("OR");
+                        thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
+                    }
+                }
+                console.log(thisLine);
+                thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
+                jsCode.push(thisLine.join(" "));
+                break;
+            }
+            //Increment or decrement statement
+            if (currToken.match(rules.INC_DEC_STATEMENT) ||
+                currToken.match(rules.INC_DEC_STATEMENT_PRE)) {
+                jsCode.push(currToken);
+            }
+            //Array declaration
         }
     }
     if (openingBracketsCount == closingBracketsCount) {

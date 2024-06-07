@@ -3,12 +3,14 @@ const fs = require("fs");
 const keywords = {
   DEC_VAR_KEYWD: "let",
   DEC_CONST_KEYWD: "const",
+  DECL_CONST_ALT_KEYWD: "def",
   FUNC_DECL: "fun",
   IF_KEYWD: "if",
   FUNC_RET_KEYWD: "ret",
   AND_OP_KEYWD: "and",
   OR_OP_KEYWD: "or",
-  NOT_OP_KEYWD: "not"
+  NOT_OP_KEYWD: "not",
+  WHILE_KEYWD: "while",
 };
 
 const symbols = {
@@ -27,6 +29,8 @@ const symbols = {
 
 const rules = {
   FUNCTION_CALL: /[a-z0-9_]+\([a-z0-9_]*\)[;]?/gm,
+  INC_DEC_STATEMENT: /.*[a-zA-Z_0-9].{2}[-+]?(;)/gm,
+  INC_DEC_STATEMENT_PRE: /.{2}[-+].*[a-zA-Z_0-9]?(;)/gm,
 };
 
 const builtinMethods = {
@@ -134,10 +138,7 @@ function parseFunctionDeclarationStatement(
       ) {
         isFunction = true;
       }
-    }
-
-    if (currToken.includes(symbols.OPENING_CURLY_BRACKET))
-      openingBracketsCount++;
+    } else openingBracketsCount++;
   }
 
   if (!isFunction) throw "invalid func decl";
@@ -193,7 +194,7 @@ function parse(lines: Array<Array<string>>) {
         lines[line].join(" ").includes(symbols.CLOSING_CURLY_BRACKET)
       ) {
         closingBracketsCount++;
-        if(lines[line].length == 1) jsCode.push(lines[line].join(" "));
+        if (lines[line].length == 1) jsCode.push(lines[line].join(" "));
       }
 
       if (
@@ -201,7 +202,7 @@ function parse(lines: Array<Array<string>>) {
         lines[line].join(" ").includes(symbols.OPENING_CURLY_BRACKET)
       ) {
         openingBracketsCount++;
-        if(lines[line].length == 1) jsCode.push(lines[line].join(" "));
+        if (lines[line].length == 1) jsCode.push(lines[line].join(" "));
       }
 
       //Ignore single line comments
@@ -215,7 +216,10 @@ function parse(lines: Array<Array<string>>) {
       }
 
       //Variables and Constants
-      if (currToken.includes(keywords.DEC_VAR_KEYWD)) {
+      if (
+        currToken.includes(keywords.DEC_VAR_KEYWD) ||
+        currToken.includes(keywords.DEC_CONST_KEYWD)
+      ) {
         lines[line] = parseVariableDeclarationStatement(lines[line], pos);
         jsCode.push(lines[line].join(" "));
         break;
@@ -265,34 +269,24 @@ function parse(lines: Array<Array<string>>) {
         thisLine[0] = keywords.IF_KEYWD + " " + symbols.OPENING_PARENTHESIS;
 
         //Logic operator
-        for(let i = 1; i < thisLine.length; i++){
-          if(thisLine[i].includes(keywords.AND_OP_KEYWD)){
-            console.log("AND")
+        for (let i = 1; i < thisLine.length; i++) {
+          if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+            console.log("AND");
             thisLine[i] = thisLine[i].replace(keywords.AND_OP_KEYWD, "&&");
           }
 
-          if(thisLine[i].includes(keywords.NOT_OP_KEYWD)){
-            console.log("NOT")
+          if (thisLine[i].includes(keywords.NOT_OP_KEYWD)) {
+            console.log("NOT");
             thisLine[i] = thisLine[i].replace(keywords.NOT_OP_KEYWD, "!");
           }
 
-          if(thisLine[i].includes(keywords.AND_OP_KEYWD)){
-            console.log("OR")
+          if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+            console.log("OR");
             thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
           }
         }
 
-        /*if (
-          thisLine[lines.length - 1]?.trim() ==
-            symbols.OPENING_CURLY_BRACKET
-        ) {
-          thisLine[lines.length - 1] =
-            symbols.CLOSING_PARENTHESIS + " " + symbols.OPENING_CURLY_BRACKET;
-        } else {
-          thisLine[lines.length - 1] = symbols.CLOSING_PARENTHESIS + " " + symbols.OPENING_CURLY_BRACKET
-        }*/
-
-        console.log(thisLine)
+        console.log(thisLine);
         thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
 
         jsCode.push(thisLine.join(" "));
@@ -300,6 +294,45 @@ function parse(lines: Array<Array<string>>) {
       }
 
       //While statement
+      if (currToken.includes(keywords.WHILE_KEYWD)) {
+        let thisLine = lines[line];
+
+        thisLine[0] = keywords.WHILE_KEYWD + " " + symbols.OPENING_PARENTHESIS;
+
+        //Logic operator
+        for (let i = 1; i < thisLine.length; i++) {
+          if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+            console.log("AND");
+            thisLine[i] = thisLine[i].replace(keywords.AND_OP_KEYWD, "&&");
+          }
+
+          if (thisLine[i].includes(keywords.NOT_OP_KEYWD)) {
+            console.log("NOT");
+            thisLine[i] = thisLine[i].replace(keywords.NOT_OP_KEYWD, "!");
+          }
+
+          if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
+            console.log("OR");
+            thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
+          }
+        }
+
+        console.log(thisLine);
+        thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
+
+        jsCode.push(thisLine.join(" "));
+        break;
+      }
+
+      //Increment or decrement statement
+      if (
+        currToken.match(rules.INC_DEC_STATEMENT) ||
+        currToken.match(rules.INC_DEC_STATEMENT_PRE)
+      ) {
+        jsCode.push(currToken);
+      }
+
+      //Array declaration
     }
   }
 
