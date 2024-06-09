@@ -1,0 +1,1 @@
++ Add a new way to add constants with #DEF
