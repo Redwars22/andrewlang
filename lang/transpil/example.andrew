@@ -1,7 +1,0 @@
-const PI = 3.14;
-
-fun CircleArea(r) {
-    ret PI * Math.pow(r, 2);
-}
-
-io.print(CircleArea(2.8));

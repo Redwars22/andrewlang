@@ -1,63 +1,18 @@
+import { errors } from "./errors";
+import { rules } from "./grammar";
+import { keywords } from "./keywords";
+import { builtinMethods } from "./lib/io";
+import { symbols } from "./symbols";
+import { tokenize } from "./tokenize";
+
 const fs = require("fs");
 
-const keywords = {
-  DEC_VAR_KEYWD: "let",
-  DEC_CONST_KEYWD: "const",
-  DECL_CONST_ALT_KEYWD: "def",
-  FUNC_DECL: "fun",
-  IF_KEYWD: "if",
-  FUNC_RET_KEYWD: "ret",
-  AND_OP_KEYWD: "and",
-  OR_OP_KEYWD: "or",
-  NOT_OP_KEYWD: "not",
-  WHILE_KEYWD: "while",
-};
-
-const symbols = {
-  SINGL_LINE_COMMENT: "//",
-  SINGL_LINE_COMMENT_ALT: "#",
-  MULT_LINE_COMMENT_BEGIN: "/*",
-  MULT_LINE_COMMENT_END: "*/",
-  ASSIGN: "=",
-  STATEMENT_END: ";",
-  TYPE_ANNOTATION: ":",
-  OPENING_CURLY_BRACKET: "{",
-  CLOSING_CURLY_BRACKET: "}",
-  OPENING_PARENTHESIS: "(",
-  CLOSING_PARENTHESIS: ")",
-};
-
-const rules = {
-  FUNCTION_CALL: /[a-z0-9_]+\([a-z0-9_]*\)[;]?/gm,
-  INC_DEC_STATEMENT: /.*[a-zA-Z_0-9].{2}[-+]?(;)/gm,
-  INC_DEC_STATEMENT_PRE: /.{2}[-+].*[a-zA-Z_0-9]?(;)/gm,
-};
-
-const builtinMethods = {
-  io: {
-    PRINT: "console.log",
-  },
-};
-
 const ANDREW_TYPES_LIST = ["int", "str", "char", "bool", "float", "double"];
-
-type IAndrewTypes = "int" | "str" | "char" | "bool" | "float" | "double";
-
-const SyntaxTree = {
-  program: {
-    nodes: [] as {}[],
-  },
-};
 
 const identifiers = [] as {
   id?: string;
   type?: "function" | "constant" | "variable";
 }[];
-
-const errors = {
-  INVALID_TYPE_OR_MISMATCH: "Not a valid type or type mismatch",
-  CLOSING_CURLY_BRACKET_MISSING: "A closing curly bracket is missing",
-};
 
 const jsCode: string[] = [];
 
@@ -65,18 +20,6 @@ let isFunction: boolean = false,
   openingBracketsCount: number = 0,
   closingBracketsCount: number = 0,
   skipLines: boolean = false;
-
-function tokenize(code: string[]): Array<Array<string>> {
-  let tokenizedLines: Array<Array<string>> = [[]];
-  let currentLineTokens: string[];
-
-  for (let line = 0; line < code.length; line++) {
-    currentLineTokens = code[line].split(" ");
-    tokenizedLines[line] = currentLineTokens;
-  }
-
-  return tokenizedLines;
-}
 
 function checkIfItExists(
   id: string,
@@ -99,7 +42,7 @@ function parseVariableDeclarationStatement(
 
   for (let tk = pos; tk < tokens.length; tk++) {
     if (tokens[tk].includes(symbols.TYPE_ANNOTATION)) {
-      let variableWithType = [];
+      let variableWithType = [] as string[];
       let isValidType = false;
 
       variableWithType = tokens[tk].split(symbols.TYPE_ANNOTATION);
@@ -175,7 +118,7 @@ function parseBuiltInFunctions(
   return vectorOfTokens;
 }
 
-function parse(lines: Array<Array<string>>) {
+export function parse(lines: Array<Array<string>>) {
   for (let line = 0; line < lines.length; line++) {
     for (let pos = 0; pos < lines[line].length; pos++) {
       let currToken = lines[line][pos];
@@ -342,7 +285,7 @@ function parse(lines: Array<Array<string>>) {
   }
 }
 
-function transpile(code: string[], output: string) {
+export function transpile(code: string[], output: string) {
   fs.writeFile(output, code.join("\n"), (err) => {
     if (err) {
       console.error(err);

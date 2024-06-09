@@ -9,3 +9,8 @@
 
 // Piece of code written by AndrewNation
 
+export const rules = {
+  FUNCTION_CALL: /[a-z0-9_]+\([a-z0-9_]*\)[;]?/gm,
+  INC_DEC_STATEMENT: /.*[a-zA-Z_0-9].{2}[-+]?(;)/gm,
+  INC_DEC_STATEMENT_PRE: /.{2}[-+].*[a-zA-Z_0-9]?(;)/gm,
+};
