@@ -1,9 +1,21 @@
+/*
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+*/
+
+// Piece of code written by AndrewNation
+
 import { errors } from "./errors";
 import { rules } from "./grammar";
 import { keywords } from "./keywords";
 import { builtinMethods } from "./lib/io";
 import { symbols } from "./symbols";
 import { tokenize } from "./tokenize";
+import { TTokens } from "./type/types";
 
 const fs = require("fs");
 
@@ -118,7 +130,7 @@ function parseBuiltInFunctions(
   return vectorOfTokens;
 }
 
-export function parse(lines: Array<Array<string>>) {
+export function parse(lines: TTokens) {
   for (let line = 0; line < lines.length; line++) {
     for (let pos = 0; pos < lines[line].length; pos++) {
       let currToken = lines[line][pos];
@@ -188,7 +200,9 @@ export function parse(lines: Array<Array<string>>) {
       }
 
       //Function calls
-      if (lines[line][pos].match(rules.FUNCTION_CALL)) {
+      if (lines[line][pos].match(rules.FUNCTION_CALL) &&
+        !lines[line][pos].includes(symbols.OBJECT_PROP_OR_METHOD)
+      ) {
         const id = lines[line][pos].split(symbols.OPENING_PARENTHESIS)[0];
 
         if (!checkIfItExists(id, "function")) break;
@@ -275,7 +289,11 @@ export function parse(lines: Array<Array<string>>) {
         jsCode.push(currToken);
       }
 
-      //Array declaration
+      //Classes
+      if (currToken.match(rules.CLASSES.METHOD_CALL)) {
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
     }
   }
 

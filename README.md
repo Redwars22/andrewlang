@@ -32,4 +32,4 @@ io.print(CircleArea(2.8));
 [Read the spec document here]()
 
 # Getting started
-The AndrewLang to JS transpiller will be available soon!
+Please run `node andrew.js input output` to transpile AndrewLang code to JavaScript. The first argument is the input file and the last one is the output file (the result of the transpilation to JS).

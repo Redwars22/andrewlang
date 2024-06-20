@@ -1,0 +1,40 @@
+/*
+                    GNU GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+*/
+
+import { transpile } from "./andrew";
+import { tokenize } from "./tokenize";
+import { TTokens } from "./type/types";
+
+// Piece of code written by AndrewNation
+
+const fs = require("fs");
+
+let CPPCode: string[] = [];
+let code: string[] = [];
+
+function parse(lines: TTokens){
+    for (let line = 0; line < lines.length; line++) {
+        for (let pos = 0; pos < lines[line].length; pos++) {
+          let currToken = lines[line][pos];
+        }
+    }
+}
+
+try {
+    let input = process.argv[2];
+    let output = process.argv[3];
+  
+    const data = fs.readFileSync(input, "utf-8");
+    code = data.split("\n");
+
+    parse(tokenize(code));
+    transpile(CPPCode, output);
+} catch(e) {
+    console.error(e);
+}
