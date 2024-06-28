@@ -21,5 +21,6 @@ export const symbols = {
     CLOSING_CURLY_BRACKET: "}",
     OPENING_PARENTHESIS: "(",
     CLOSING_PARENTHESIS: ")",
-    OBJECT_PROP_OR_METHOD: "."
+    OBJECT_PROP_OR_METHOD: ".",
+    HASHTAG: "#"
 };

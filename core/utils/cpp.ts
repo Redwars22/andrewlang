@@ -9,4 +9,32 @@
 
 // Piece of code written by AndrewNation
 
+const fs = require("fs");
+
 function compileCPP(input, output){}
+
+export function transpileToCPP(code: string[], output: string) {
+   const template = fs.readFileSync("./template/base.cpp", "utf-8");
+
+   const baseTemplate = template.split("/n");
+   const finalCode = [];
+
+   for(let i = 0; i < baseTemplate.length; i++){
+      finalCode.push(baseTemplate[i]);
+
+      if(i == 5){
+         for(let j = 0; j < code.length; j++){
+            console.log(code[j])
+            finalCode.push(code[j]);
+         }
+      }
+   }
+
+   fs.writeFile(output, finalCode.join("\n"), (err) => {
+     if (err) {
+       console.error(err);
+     } else {
+       console.log(`Successfully wrote data to ${output}`);
+     }
+   });
+ }

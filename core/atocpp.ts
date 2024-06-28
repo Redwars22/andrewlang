@@ -10,6 +10,7 @@
 import { transpile } from "./andrew";
 import { tokenize } from "./tokenize";
 import { TTokens } from "./type/types";
+import { transpileToCPP } from "./utils/cpp";
 
 // Piece of code written by AndrewNation
 
@@ -22,6 +23,8 @@ function parse(lines: TTokens){
     for (let line = 0; line < lines.length; line++) {
         for (let pos = 0; pos < lines[line].length; pos++) {
           let currToken = lines[line][pos];
+
+          CPPCode.push(lines[line].join(" "));
         }
     }
 }
@@ -34,7 +37,7 @@ try {
     code = data.split("\n");
 
     parse(tokenize(code));
-    transpile(CPPCode, output);
+    transpileToCPP(CPPCode, output);
 } catch(e) {
     console.error(e);
 }

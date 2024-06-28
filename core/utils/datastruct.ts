@@ -7,12 +7,11 @@
  of this license document, but changing it is not allowed.
 */
 
+import { symbols } from "../symbols";
+import { IVarOrConst } from "../type/types";
+
 // Piece of code written by AndrewNation
 
-export const builtinMethods = {
-    io: {
-      PRINT: "console.log",
-      WARN: "console.warn",
-      ERROR: "console.error"
-    },
-};
+export function defToConst(data: IVarOrConst){
+    return `const ${data.id} ${symbols.ASSIGN} ${data.value}`;
+}

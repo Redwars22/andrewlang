@@ -16,7 +16,7 @@ export function tokenize(code: string[]): TTokens {
   let currentLineTokens: string[];
 
   for (let line = 0; line < code.length; line++) {
-    currentLineTokens = code[line].split(" ");
+    currentLineTokens = code[line].trim().split(" ");
     tokenizedLines[line] = currentLineTokens;
   }
 

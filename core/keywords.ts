@@ -20,4 +20,7 @@ export const keywords = {
     OR_OP_KEYWD: "or",
     NOT_OP_KEYWD: "not",
     WHILE_KEYWD: "while",
+    CLASS_KEYWD: "class",
+    METHOD_DECL: "method",
+    IMPORT_MODULE_KEYWD: "import"
 };

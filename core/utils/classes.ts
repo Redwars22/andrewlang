@@ -10,5 +10,7 @@
 // Piece of code written by AndrewNation
 
 export const classRules = {
-    METHOD_CALL: /[a-zA-Z0-9]*\.{1}[a-zA-Z0-9]*\(.*\)[;]?/gm
+    METHOD_CALL: /[a-zA-Z0-9]*\.{1}[a-zA-Z0-9]*\(.*\)[;]?/gm,
+    CONSTRUCTOR: "",
+    METHOD: /[a-z0-9_]+\([a-z0-9_ ,]*\)/gm,
 }

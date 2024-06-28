@@ -7,15 +7,15 @@
  of this license document, but changing it is not allowed.
 */
 
-// Piece of code written by AndrewNation
-
 import { errors } from "./errors";
 import { rules } from "./grammar";
 import { keywords } from "./keywords";
 import { builtinMethods } from "./lib/io";
 import { symbols } from "./symbols";
 import { tokenize } from "./tokenize";
-import { TTokens } from "./type/types";
+import { IVarOrConst, TTokens } from "./type/types";
+import { defToConst } from "./utils/datastruct";
+import { parseBuiltInFunctions } from "./utils/func";
 
 const fs = require("fs");
 
@@ -23,7 +23,7 @@ const ANDREW_TYPES_LIST = ["int", "str", "char", "bool", "float", "double"];
 
 const identifiers = [] as {
   id?: string;
-  type?: "function" | "constant" | "variable";
+  type?: "function" | "constant" | "variable" | "method" | "class";
 }[];
 
 const jsCode: string[] = [];
@@ -78,7 +78,7 @@ function parseVariableDeclarationStatement(
 
 function parseFunctionDeclarationStatement(
   tokens: string[],
-  pos: number
+  pos: number,
 ): string[] {
   let vectorOfTokens: string[] = tokens;
   let hasArgs = false;
@@ -104,28 +104,30 @@ function parseFunctionDeclarationStatement(
   return vectorOfTokens;
 }
 
-function getJSFuncCounterpart(key: string) {
-  if (key == "PRINT") {
-    return builtinMethods.io.PRINT;
-  }
-
-  return "";
-}
-
-function parseBuiltInFunctions(
+function parseMethodDeclarationStatement(
   tokens: string[],
   pos: number,
-  id: string,
-  key: string
 ): string[] {
   let vectorOfTokens: string[] = tokens;
+  let hasArgs = false;
 
-  for (let tk = 0; tk < tokens.length; tk++) {
-    vectorOfTokens[tk] = vectorOfTokens[tk].replace(
-      id,
-      getJSFuncCounterpart(key)
-    );
+  for (let tk = pos; tk < vectorOfTokens.length; tk++) {
+    let currToken = vectorOfTokens[tk];
+
+    if (!hasArgs) {
+      if (
+        currToken.includes(symbols.OPENING_PARENTHESIS) &&
+        currToken.includes(symbols.CLOSING_PARENTHESIS)
+      ) {
+        isFunction = true;
+      }
+    } else openingBracketsCount++;
   }
+
+  if (!isFunction) throw "invalid method decl";
+
+  vectorOfTokens[0] = "";
+  identifiers.push({ id: vectorOfTokens[1], type: "method" });
 
   return vectorOfTokens;
 }
@@ -180,6 +182,28 @@ export function parse(lines: TTokens) {
         break;
       }
 
+      //Numeric value constant
+      if (currToken.includes(symbols.HASHTAG + keywords.DECL_CONST_ALT_KEYWD)) {
+        const constant = {
+          id: "",
+          value: "",
+        } as IVarOrConst;
+
+        if (lines[line][pos + 1] && lines[line][pos + 2]) {
+          if (
+            lines[line][pos + 1].match(rules.IDENTIFIER) &&
+            lines[line][pos + 2].match(rules.NUMBER)
+          ) {
+            constant.id = lines[line][pos + 1];
+            constant.value = lines[line][pos + 2];
+          }
+        } else break;
+
+        jsCode.push(defToConst(constant));
+
+        break;
+      }
+
       //Function declaration
       if (currToken.includes(keywords.FUNC_DECL)) {
         lines[line] = parseFunctionDeclarationStatement(lines[line], pos);
@@ -187,7 +211,7 @@ export function parse(lines: TTokens) {
         break;
       }
 
-      //Built-in print function
+      //Built-in functions
       if (currToken.includes("io.print")) {
         lines[line] = parseBuiltInFunctions(
           lines[line],
@@ -199,8 +223,20 @@ export function parse(lines: TTokens) {
         break;
       }
 
+	  if (currToken.includes("io.error")) {
+        lines[line] = parseBuiltInFunctions(
+          lines[line],
+          pos,
+          "io.error",
+          "ERROR"
+        );
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
+
       //Function calls
-      if (lines[line][pos].match(rules.FUNCTION_CALL) &&
+      if (
+        lines[line][pos].match(rules.FUNCTION_CALL) &&
         !lines[line][pos].includes(symbols.OBJECT_PROP_OR_METHOD)
       ) {
         const id = lines[line][pos].split(symbols.OPENING_PARENTHESIS)[0];
@@ -291,6 +327,23 @@ export function parse(lines: TTokens) {
 
       //Classes
       if (currToken.match(rules.CLASSES.METHOD_CALL)) {
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
+
+      if (currToken.trim() == keywords.CLASS_KEYWD) {
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
+
+      if (currToken.match(rules.CLASSES.METHOD))) {
+        lines[line] = parseMethodDeclarationStatement(lines[line], pos);
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
+
+      //Import
+      if (currToken.includes(keywords.IMPORT_MODULE_KEYWD)) {
         jsCode.push(lines[line].join(" "));
         break;
       }

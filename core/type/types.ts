@@ -12,3 +12,8 @@
 export type IAndrewTypes = "int" | "str" | "char" | "bool" | "float" | "double";
 
 export type TTokens = Array<Array<string>>
+
+export interface IVarOrConst {
+   id: string;
+   value: string;
+} 
