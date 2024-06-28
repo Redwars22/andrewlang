@@ -78,7 +78,7 @@ function parseVariableDeclarationStatement(
 
 function parseFunctionDeclarationStatement(
   tokens: string[],
-  pos: number,
+  pos: number
 ): string[] {
   let vectorOfTokens: string[] = tokens;
   let hasArgs = false;
@@ -106,7 +106,7 @@ function parseFunctionDeclarationStatement(
 
 function parseMethodDeclarationStatement(
   tokens: string[],
-  pos: number,
+  pos: number
 ): string[] {
   let vectorOfTokens: string[] = tokens;
   let hasArgs = false;
@@ -126,7 +126,6 @@ function parseMethodDeclarationStatement(
 
   if (!isFunction) throw "invalid method decl";
 
-  vectorOfTokens[0] = "";
   identifiers.push({ id: vectorOfTokens[1], type: "method" });
 
   return vectorOfTokens;
@@ -223,7 +222,7 @@ export function parse(lines: TTokens) {
         break;
       }
 
-	  if (currToken.includes("io.error")) {
+      if (currToken.includes("io.error")) {
         lines[line] = parseBuiltInFunctions(
           lines[line],
           pos,
@@ -336,7 +335,7 @@ export function parse(lines: TTokens) {
         break;
       }
 
-      if (currToken.match(rules.CLASSES.METHOD))) {
+      if (currToken.match(rules.CLASSES.METHOD)) {
         lines[line] = parseMethodDeclarationStatement(lines[line], pos);
         jsCode.push(lines[line].join(" "));
         break;
