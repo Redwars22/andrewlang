@@ -14,10 +14,15 @@ import { builtinMethods } from "./lib/io";
 import { symbols } from "./symbols";
 import { tokenize } from "./tokenize";
 import { IVarOrConst, TTokens } from "./type/types";
+import { parseThisKeyword } from "./utils/classes";
 import { defToConst } from "./utils/datastruct";
 import { parseBuiltInFunctions } from "./utils/func";
+import { AndrewTerminal } from "./utils/terminal";
+import { JSCounterparts } from "./utils/transl";
 
 const fs = require("fs");
+const andrewTerm = require("terminal-kit").terminal;
+const prompt = require("prompt-sync")();
 
 const ANDREW_TYPES_LIST = ["int", "str", "char", "bool", "float", "double"];
 
@@ -181,6 +186,11 @@ export function parse(lines: TTokens) {
         break;
       }
 
+      //This keyword
+      if (lines[line].join(" ").includes(keywords.OBJ_THIS_INSTANCE)) {
+        lines[line] = parseThisKeyword(lines[line]).split(" ");
+      }
+
       //Numeric value constant
       if (currToken.includes(symbols.HASHTAG + keywords.DECL_CONST_ALT_KEYWD)) {
         const constant = {
@@ -254,6 +264,16 @@ export function parse(lines: TTokens) {
         break;
       }
 
+      //Else and Elif
+      if (currToken.includes(keywords.ELIF_KEYWD)) {
+        lines[line][pos].replace(
+          keywords.ELIF_KEYWD,
+          keywords.ELSE_KEYWD + " " + keywords.IF_KEYWD
+        );
+      } else if (currToken.includes(keywords.ELSE_KEYWD)) {
+        jsCode.push(lines[line].join(" "));
+      }
+
       //If statement
       if (currToken.includes(keywords.IF_KEYWD)) {
         let thisLine = lines[line];
@@ -282,6 +302,23 @@ export function parse(lines: TTokens) {
         thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
 
         jsCode.push(thisLine.join(" "));
+        break;
+      }
+
+      //Exit and jump
+      if (currToken.includes(keywords.BREAK_KEYWD)) {
+        lines[line][pos].replace(
+          keywords.BREAK_KEYWD,
+          JSCounterparts.BREAK_KEYWD
+        );
+        break;
+      }
+
+      if (currToken.includes(keywords.CONTINUE_KEYWD)) {
+        lines[line][pos].replace(
+          keywords.CONTINUE_KEYWD,
+          JSCounterparts.CONTINUE_KEYWD
+        );
         break;
       }
 
@@ -346,6 +383,20 @@ export function parse(lines: TTokens) {
         jsCode.push(lines[line].join(" "));
         break;
       }
+
+      //Assign statement
+      if (lines[line].join(" ").match(rules.ASSIGN_STATEMENT)) {
+        let statement: string = "";
+
+        if (lines[line].join(" ").includes(keywords.OBJ_THIS_INSTANCE)) {
+          statement = parseThisKeyword(lines[line]);
+          jsCode.push(statement);
+          break;
+        }
+
+        jsCode.push(lines[line].join(" "));
+        break;
+      }
     }
   }
 
@@ -368,14 +419,36 @@ export function transpile(code: string[], output: string) {
 let code: string[] = [];
 
 try {
-  let input = process.argv[2];
-  let output = process.argv[3];
+  //If there are no arguments, then init the AndrewLang terminal mode
+  if (!process.argv[2]) {
+    let running = true;
 
-  const data = fs.readFileSync(input, "utf-8");
-  code = data.split("\n");
+    while (running) {
+      andrewTerm.bold.underline.red("\nANDREWLANG INTERPRETER\n");
+      andrewTerm.bold.blue(AndrewTerminal.messages.welcome + "\n");
+      let _code = [];
+      _code.push(prompt(">"));
+      parse(tokenize(_code));
+      eval(jsCode.join("\n"));
+    }
+  } else {
+    let input = process.argv[2];
+    let output = process.argv[3];
 
-  parse(tokenize(code));
-  transpile(jsCode, output);
+    const data = fs.readFileSync(input, "utf-8");
+    code = data.split("\n");
+
+    parse(tokenize(code));
+    transpile(jsCode, output);
+  }
+  /*
+  if(process.argv[4]) {
+    let arg = process.argv[4];
+
+    if(arg == "-r") {
+     process.exec(`node ${output}`);
+    }
+  }*/
 } catch (e) {
   console.error(e);
 }

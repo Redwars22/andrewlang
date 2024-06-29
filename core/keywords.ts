@@ -22,5 +22,11 @@ export const keywords = {
     WHILE_KEYWD: "while",
     CLASS_KEYWD: "class",
     METHOD_DECL: "method",
-    IMPORT_MODULE_KEYWD: "import"
+    IMPORT_MODULE_KEYWD: "import",
+    OBJ_THIS_INSTANCE: "self",
+    ELSE_KEYWD: "else",
+    ELIF_KEYWD: "elif",
+    BREAK_KEYWD: "exit",
+    CONTINUE_KEYWD: "jump",
+    EXTENDS_KEYD: "extends"
 };

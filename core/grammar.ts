@@ -17,5 +17,6 @@ export const rules = {
   INC_DEC_STATEMENT_PRE: /.{2}[-+].*[a-zA-Z_0-9]?(;)/gm,
   CLASSES: classRules,
   NUMBER: /[0-9.]+/gm,
-  IDENTIFIER: /[0-9a-z_A-Z]+/gm
+  IDENTIFIER: /[0-9a-z_A-Z]+/gm,
+  ASSIGN_STATEMENT: /.*( )?=( )?.*(;)?/gm
 };
