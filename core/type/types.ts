@@ -17,3 +17,20 @@ export interface IVarOrConst {
    id: string;
    value: string;
 } 
+
+export type TToken = string;
+
+export interface ITypeManipulation {
+    value: any;
+    initialType: string;
+    typeTarget: string
+}
+
+export const JSTypeDictionary = {
+    "bool": "Boolean",
+    "int": "parseInt",
+    "str": "String",
+    "char": "",
+    "double": "",
+    "float": "parseFloat",
+}

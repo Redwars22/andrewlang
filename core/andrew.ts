@@ -13,12 +13,13 @@ import { keywords } from "./keywords";
 import { builtinMethods } from "./lib/io";
 import { symbols } from "./symbols";
 import { tokenize } from "./tokenize";
-import { IVarOrConst, TTokens } from "./type/types";
+import { IVarOrConst, TToken, TTokens } from "./type/types";
 import { parseThisKeyword } from "./utils/classes";
 import { defToConst } from "./utils/datastruct";
 import { parseBuiltInFunctions } from "./utils/func";
 import { AndrewTerminal } from "./utils/terminal";
 import { JSCounterparts } from "./utils/transl";
+import { handleParseTypeCasting } from "./utils/typeman";
 
 const fs = require("fs");
 const andrewTerm = require("terminal-kit").terminal;
@@ -31,7 +32,7 @@ const identifiers = [] as {
   type?: "function" | "constant" | "variable" | "method" | "class";
 }[];
 
-const jsCode: string[] = [];
+let jsCode: string[] = [];
 
 let isFunction: boolean = false,
   openingBracketsCount: number = 0,
@@ -211,6 +212,20 @@ export function parse(lines: TTokens) {
         jsCode.push(defToConst(constant));
 
         break;
+      }
+
+      //Type casting
+      if (lines[line].join(" ").includes("<") && lines[line].join(" ").includes(">")) {
+        for(let word = 0; word < lines[line].length; word++){
+          let currWord = lines[line][word];
+          if(currWord.includes("<") && currWord.includes(">")){
+            currWord = currWord.replace("<", "");
+
+            let _tokens: TToken[] = currWord.split(">");
+
+            lines[line][word] = handleParseTypeCasting(_tokens);
+          }
+        }
       }
 
       //Function declaration
@@ -423,13 +438,21 @@ try {
   if (!process.argv[2]) {
     let running = true;
 
+    andrewTerm.bold.underline.red("\nANDREWLANG INTERPRETER\n");
+    andrewTerm.bold.blue(AndrewTerminal.messages.welcome + "\n");
+
     while (running) {
-      andrewTerm.bold.underline.red("\nANDREWLANG INTERPRETER\n");
-      andrewTerm.bold.blue(AndrewTerminal.messages.welcome + "\n");
       let _code = [];
-      _code.push(prompt(">"));
+      jsCode = [];
+      _code.push(prompt(">>> "));
+      //if(_code[0].includes(";")) _code.split(";")
       parse(tokenize(_code));
-      eval(jsCode.join("\n"));
+      try {
+        eval(jsCode.join("\n"));
+      } catch(err) {
+        console.log("Fatal: ", err);
+      }
+      
     }
   } else {
     let input = process.argv[2];
