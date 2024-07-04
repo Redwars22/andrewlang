@@ -12,23 +12,27 @@
 | and | both X and Y are true |
 | bool | boolean type |
 | char | char type |
+| class | creates a class |
 | const | defines a constant |
+| def | defines a numeric constant |
 | do | tells that the loop will execute at least once, even if the condition evaluates to false |
 | double | double type |
-| elif |  |
-| else |  |
-| exit |  |
+| elif | if the previous block of code evaluates to false, then executes another evaluation with a different statement |
+| else | runs the following block of code if the previous statement evaluates to false |
+| exit | exits from a loop |
 | false | false value |
 | float | float type |
 | fun | function |
 | if | introduces a conditional statement |
-| import | import a module |
+| import | imports a module |
 | int | integer type |
 | jump | skips to the next iteration |
 | let | defines a variable |
+| new | instantiates an object |
 | not | negates a statement |
 | or | either X or Y is true |
 | ret | return a value or exit from a function |
+| self | refers to the current instance of an object |
 | str | string type |
 | true | true value |
 | while | defines a loop that will keep running as long as the condition is met |
@@ -50,3 +54,4 @@
 | , | separates elements in an array |
 | “” | string |
 | ‘’ | character |
+| . | access a property of an object or represents a floating point |
