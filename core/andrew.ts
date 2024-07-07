@@ -24,6 +24,7 @@ import { handleParseTypeCasting } from "./utils/typeman";
 const fs = require("fs");
 const andrewTerm = require("terminal-kit").terminal;
 const prompt = require("prompt-sync")();
+const { exec } = require("child_process");
 
 const ANDREW_TYPES_LIST = ["int", "str", "char", "bool", "float", "double"];
 
@@ -298,22 +299,18 @@ export function parse(lines: TTokens) {
         //Logic operator
         for (let i = 1; i < thisLine.length; i++) {
           if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
-            console.log("AND");
             thisLine[i] = thisLine[i].replace(keywords.AND_OP_KEYWD, "&&");
           }
 
           if (thisLine[i].includes(keywords.NOT_OP_KEYWD)) {
-            console.log("NOT");
             thisLine[i] = thisLine[i].replace(keywords.NOT_OP_KEYWD, "!");
           }
 
           if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
-            console.log("OR");
             thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
           }
         }
 
-        console.log(thisLine);
         thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
 
         jsCode.push(thisLine.join(" "));
@@ -346,22 +343,18 @@ export function parse(lines: TTokens) {
         //Logic operator
         for (let i = 1; i < thisLine.length; i++) {
           if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
-            console.log("AND");
             thisLine[i] = thisLine[i].replace(keywords.AND_OP_KEYWD, "&&");
           }
 
           if (thisLine[i].includes(keywords.NOT_OP_KEYWD)) {
-            console.log("NOT");
             thisLine[i] = thisLine[i].replace(keywords.NOT_OP_KEYWD, "!");
           }
 
           if (thisLine[i].includes(keywords.AND_OP_KEYWD)) {
-            console.log("OR");
             thisLine[i] = thisLine[i].replace(keywords.OR_OP_KEYWD, "||");
           }
         }
 
-        console.log(thisLine);
         thisLine[thisLine.length - 1] = ") " + thisLine[thisLine.length - 1];
 
         jsCode.push(thisLine.join(" "));
@@ -425,8 +418,6 @@ export function transpile(code: string[], output: string) {
   fs.writeFile(output, code.join("\n"), (err) => {
     if (err) {
       console.error(err);
-    } else {
-      console.log(`Successfully wrote data to ${output}`);
     }
   });
 }
@@ -437,6 +428,8 @@ try {
   //If there are no arguments, then init the AndrewLang terminal mode
   if (!process.argv[2]) {
     let running = true;
+
+    //exec("clear");
 
     andrewTerm.bold.underline.red("\nANDREWLANG INTERPRETER\n");
     andrewTerm.bold.blue(AndrewTerminal.messages.welcome + "\n");
@@ -457,6 +450,8 @@ try {
   } else {
     let input = process.argv[2];
     let output = process.argv[3];
+
+    if(!input.includes(".adw")) throw errors.INVALID_SOURCE;
 
     const data = fs.readFileSync(input, "utf-8");
     code = data.split("\n");

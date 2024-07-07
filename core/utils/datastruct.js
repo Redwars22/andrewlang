@@ -1,3 +1,4 @@
+"use strict";
 /*
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -6,11 +7,10 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 */
-
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.defToConst = defToConst;
+var symbols_1 = require("../symbols");
 // Piece of code written by AndrewNation
-
-export const errors = {
-    INVALID_TYPE_OR_MISMATCH: "Not a valid type or type mismatch",
-    CLOSING_CURLY_BRACKET_MISSING: "A closing curly bracket is missing",
-    INVALID_SOURCE: "The source is not a valid Andrewlang file"
-};
+function defToConst(data) {
+    return "const ".concat(data.id, " ").concat(symbols_1.symbols.ASSIGN, " ").concat(data.value);
+}

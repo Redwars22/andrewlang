@@ -15,6 +15,7 @@ import { transpileToCPP } from "./utils/cpp";
 // Piece of code written by AndrewNation
 
 const fs = require("fs");
+const { exec } = require("child_process");
 
 let CPPCode: string[] = [];
 let code: string[] = [];
@@ -38,6 +39,8 @@ try {
 
     parse(tokenize(code));
     transpileToCPP(CPPCode, output);
+
+    exec(`g++ ${output} -o ${output.replace(".cpp","")}`);
 } catch(e) {
     console.error(e);
 }

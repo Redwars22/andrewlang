@@ -1,3 +1,4 @@
+"use strict";
 /*
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -6,11 +7,13 @@
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 */
-
-// Piece of code written by AndrewNation
-
-export const errors = {
-    INVALID_TYPE_OR_MISMATCH: "Not a valid type or type mismatch",
-    CLOSING_CURLY_BRACKET_MISSING: "A closing curly bracket is missing",
-    INVALID_SOURCE: "The source is not a valid Andrewlang file"
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.JSTypeDictionary = void 0;
+exports.JSTypeDictionary = {
+    "bool": "Boolean",
+    "int": "parseInt",
+    "str": "String",
+    "char": "",
+    "double": "",
+    "float": "parseFloat",
 };

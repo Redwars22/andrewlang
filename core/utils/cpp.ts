@@ -15,19 +15,22 @@ function compileCPP(input, output){}
 
 export function transpileToCPP(code: string[], output: string) {
    const template = fs.readFileSync("./template/base.cpp", "utf-8");
+   const template_end = fs.readFileSync("./template/part2.cpp", "utf-8");
 
    const baseTemplate = template.split("/n");
-   const finalCode = [];
+   const part2Template = template_end.split("/n");
+   let finalCode = [];
 
-   for(let i = 0; i < baseTemplate.length; i++){
-      finalCode.push(baseTemplate[i]);
+   finalCode = baseTemplate
 
-      if(i == 5){
-         for(let j = 0; j < code.length; j++){
-            console.log(code[j])
-            finalCode.push(code[j]);
-         }
-      }
+   for(let line = 0; line < code.length; line++){
+    finalCode.push(code[line]);
+   }
+
+   finalCode.push("}");
+
+   for(let line = 0; line < part2Template.length; line++){
+    finalCode.push(part2Template[line])
    }
 
    fs.writeFile(output, finalCode.join("\n"), (err) => {
